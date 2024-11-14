@@ -1,7 +1,9 @@
-require("config.lazy")
 -- leaderキーの設定
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+
+require("config.lazy")
+
 -- プラグインの設定
 require("lazy").setup({
   -- mason
@@ -30,6 +32,9 @@ require("lazy").setup({
   },
   {
     "rafamadriz/friendly-snippets",
+    dependencies = {
+      "L3MON4D3/LuaSnip",
+    },
     config = function()
       require("luasnip.loaders.from_vscode").lazy_load()
     end,
@@ -99,7 +104,9 @@ require("lazy").setup({
       null_ls.setup({
         sources = {
           formatting.black,
-          diagnostics.flake8,
+          -- diagnostics.flake8,
+          formatting.ruff,
+          diagnostics.ruff,
           formatting.clang_format,
         },
       })
@@ -116,7 +123,8 @@ require("lazy").setup({
       require("mason-null-ls").setup({
         ensure_installed = {
           "black",
-          "flake8",
+          -- "flake8",
+          "ruff",
           "clang-format",
         },
         automatic_installation = true,
