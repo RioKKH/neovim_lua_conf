@@ -20,6 +20,7 @@ require("lspconfig").clangd.setup({
     "--clang-tidy",
     "--header-insertion=iwyu",
   },
+  filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
 })
 
 -- フォーマット時の自動保存の設定
