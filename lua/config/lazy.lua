@@ -15,6 +15,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
+  log = { level = "debug" }, -- ログレベルをデバッグに設定
   spec = {
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
@@ -99,9 +100,9 @@ require("lazy").setup({
       "saadparwaiz1/cmp_luasnip",
       "rafamadriz/friendly-snippets",
     },
+    event = "InsertEnter",
     config = function()
       local luasnip = require("luasnip")
-      local cmp = require("cmp")
 
       -- スニペット間の移動用のキーマッピング
       -- instertモード(i)とselectモード(s)で有効になるキーマッピング
@@ -120,10 +121,12 @@ require("lazy").setup({
         end
       end, { silent = true })
 
+      local cmp = require("cmp")
       cmp.setup({
         snippet = {
           expand = function(args)
-            luasnip.lsp_expand(args.body)
+            require("luasnip").lsp_expand(args.body)
+            -- luasnip.lsp_expand(args.body)
           end,
         },
         mapping = cmp.mapping.preset.insert({
@@ -135,6 +138,25 @@ require("lazy").setup({
           { name = "buffer" }, -- バッファからの補完
           { name = "path" }, -- パス補完
         },
+      })
+
+      -- LSPの設定
+      local capabilities = require("cmp_nvim_lsp").default_capabilities()
+      -- Python LSP
+      require("lspconfig").pyright.setup({
+        capabilities = capabilities,
+      })
+      -- C/C++ LSP
+      require("lspconfig").clangd.setup({
+        capabilities = capabilities,
+        cmd = {
+          "clangd",
+          "--background-index",
+          "--suggest-missing-includes",
+          "--clang-tidy",
+          "--header-insertion=iwyu",
+        },
+        filetyps = { "c", "cpp", "objc", "objcpp", "cuda" },
       })
     end,
   },
