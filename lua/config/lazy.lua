@@ -174,10 +174,15 @@ require("lazy").setup({
       null_ls.setup({
         sources = {
           formatting.black,
-          -- diagnostics.flake8,
           formatting.ruff,
+          formatting.clang_format.with({
+            extra_args = {
+              '--style = {"BasedOnStyle": "Google", "IndentWidth": 4, "ColumnLimit": 100',
+            },
+          }),
+          formatting.shfmt,
           diagnostics.ruff,
-          formatting.clang_format,
+          -- diagnostics.flake8,
         },
       })
     end,
@@ -196,6 +201,7 @@ require("lazy").setup({
           -- "flake8",
           "ruff",
           "clang-format",
+          "shfmt",
         },
         automatic_installation = true,
       })
