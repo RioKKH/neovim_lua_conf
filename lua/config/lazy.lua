@@ -63,23 +63,6 @@ require("lazy").setup({
     end,
   },
   {
-    "williamboman/mason-lspconfig.nvim",
-    dependencies = {
-      "williamboman/mason.nvim",
-      "neovim/nvim-lspconfig",
-    },
-    event = { "BufReadPre", "BufNewFile" },
-    config = function()
-      require("mason-lspconfig").setup({
-        ensure_installed = {
-          "pyright", -- Python
-          "clangd", -- C/C++
-        },
-        automatic_installation = true,
-      })
-    end,
-  },
-  {
     "rafamadriz/friendly-snippets",
     dependencies = {
       "L3MON4D3/LuaSnip",
@@ -139,14 +122,23 @@ require("lazy").setup({
           { name = "path" }, -- パス補完
         },
       })
-
-      -- LSPの設定
+    end,
+  },
+  {
+    "neovim/nvim-lspconfig",
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      -- LSPの共通capabilities設定
       local capabilities = require("cmp_nvim_lsp").default_capabilities()
-      -- Python LSP
+
+      -- Python用LSP設定
       require("lspconfig").pyright.setup({
         capabilities = capabilities,
+        on_attach = function(client, bufnr)
+          print("Pyright attached to buffer")
+        end,
       })
-      -- C/C++ LSP
+      -- C/C++用LSP設定
       require("lspconfig").clangd.setup({
         capabilities = capabilities,
         cmd = {
@@ -156,7 +148,9 @@ require("lazy").setup({
           "--clang-tidy",
           "--header-insertion=iwyu",
         },
-        filetyps = { "c", "cpp", "objc", "objcpp", "cuda" },
+        on_attach = function(client, bufnr)
+          print("Clangd attached to buffer")
+        end,
       })
     end,
   },
@@ -173,17 +167,40 @@ require("lazy").setup({
       local diagnostics = null_ls.builtins.diagnostics
       null_ls.setup({
         sources = {
-          formatting.black,
-          formatting.ruff,
-          formatting.clang_format.with({
-            extra_args = {
-              '--style = {"BasedOnStyle": "Google", "IndentWidth": 4, "ColumnLimit": 100',
-            },
-          }),
           formatting.shfmt,
+          formatting.ruff,
           diagnostics.ruff,
+          -- formatting.black,
+          -- formatting.clang_format.with({
+          --   -- command = "/usr/bin/clang-format",
+          --   extra_args = {
+          --     "--style={BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 100}",
+          --   },
+          -- }),
           -- diagnostics.flake8,
         },
+        -- log = {
+        --   enable = true,
+        --   level = "debug",
+        --   use_console = "async",
+        -- },
+      })
+    end,
+  },
+  {
+    "williamboman/mason-lspconfig.nvim",
+    dependencies = {
+      "williamboman/mason.nvim",
+      "neovim/nvim-lspconfig",
+    },
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      require("mason-lspconfig").setup({
+        ensure_installed = {
+          "pyright", -- Python
+          "clangd", -- C/C++
+        },
+        automatic_installation = true,
       })
     end,
   },
@@ -197,10 +214,10 @@ require("lazy").setup({
     config = function()
       require("mason-null-ls").setup({
         ensure_installed = {
-          "black",
+          -- "black",
           -- "flake8",
           "ruff",
-          "clang-format",
+          -- "clang-format",
           "shfmt",
         },
         automatic_installation = true,
